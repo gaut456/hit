@@ -1,0 +1,1470 @@
+package search;
+//import JtreeStructure;
+
+//import JTREEStructure;
+
+//import texttoxml.ToXML;
+
+//import search.SearchResult.JtreeStructure;
+import java.awt.BorderLayout;
+import java.awt.Desktop;
+import java.awt.GridLayout;
+import java.awt.Panel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.Vector;
+
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JTree;
+import javax.swing.Popup;
+import javax.swing.PopupFactory;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.sax.TransformerHandler;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.AttributesImpl;
+
+class TestOpenFile {
+	SearchResult class2 = new SearchResult();
+	Battelship class3 = new Battelship();
+	JtreeStructure class5 = new JtreeStructure();
+	JTREEStruct class6 = new JTREEStruct();
+
+	JFileChooser chooser = new JFileChooser();
+	protected JTextArea textArea;
+	protected JTextArea textArea1;
+	protected JButton myButton;
+	protected Popup popup;
+	protected Popup popup1;
+	protected JButton anotherButton;
+	protected JPanel myPanel;
+	protected JButton anotherButton1;
+	protected JPanel myPanel1;
+	private final static String newline = "\n";
+
+	protected void initUI() {
+		// SearchResult class2 = new SearchResult();
+		// SearchResult.createUI();
+
+		JFrame frame = new JFrame("Query Optimization In Unstructured Database");
+		Panel p1 = new Panel();
+		Panel p2 = new Panel();
+		Panel p3 = new Panel();
+		Panel p4 = new Panel();
+		Panel p5 = new Panel();
+		Panel p6 = new Panel();
+		final JLabel label;
+		final JLabel label1;
+		final JLabel label2;
+		label1 = new JLabel("CONVERTER TOOL");
+		label1.setBounds(20, 30, 100, 30);
+
+		label = new JLabel("ORIGINAL QUERY EXAMPLE");
+		label.setBounds(20, 30, 100, 30);
+
+		label2 = new JLabel("OPTIMIZED QUERY EXAMPLE ");
+		label2.setBounds(20, 30, 100, 30);
+
+		// p1.setLayout(new GridLayout(5,5));
+		// p2.setLayout(new GridLayout(4,4));
+		// p3.setLayout(new GridLayout(3,3));
+
+		final JButton chooseFile = new JButton("Select Unstructured File");
+		JButton convert = new JButton("Convert To Semi-Structured");
+		JButton finale = new JButton("Convert To Structured");
+		JButton original = new JButton("Original Query Tree");
+		JButton optimized = new JButton("Optimized Query Tree");
+		JButton button = new JButton("Optimized Query");
+		button.setActionCommand("button");
+		myButton = new JButton("SQL Query"); // popup window appears when this is pressed
+		myButton.setActionCommand("myButton");
+		// myButton.addActionListener(this);
+		anotherButton = new JButton("execute"); // button on popup. closes popup when pressed
+		anotherButton.setActionCommand("execute");
+		anotherButton1 = new JButton("execute"); // button on popup. closes popup when pressed
+		anotherButton1.setActionCommand("execute");
+		textArea = new JTextArea(5, 100);
+		textArea.setEditable(true); // note: set to true!
+
+		textArea.append(
+				"select p.p_no,p.dnum,e.last_name from project as p,department as d,employee as e where p.dnum=d.dept_no and d.mgremp_id=e.emp_id and p.p_loc='new york'");
+		JScrollPane scrollPane = new JScrollPane(textArea);
+		// Container content = new ContentPane(textArea);
+		myPanel = new JPanel(); // this is the popup panel
+
+		myPanel.add(scrollPane);
+		myPanel.add(anotherButton);
+		textArea1 = new JTextArea(5, 100);
+		textArea1.setEditable(true); // note: set to true!
+
+		textArea1.append(
+				"select p_no,dnum,last_name from (select p_no,dnum from project where p_loc='new york') as p,(select mgremp_id,dept_no from department)as d,(select last_name,emp_id from employee) as e where p.dnum=d.dept_no and d.mgremp_id=e.emp_id ");
+		JScrollPane scrollPane1 = new JScrollPane(textArea1);
+		myPanel1 = new JPanel(); // this is the popup panel
+
+		myPanel1.add(scrollPane1);
+		myPanel1.add(anotherButton1);
+
+		final JTextArea textArea = new JTextArea();
+
+		chooser.setFileFilter(new FileFilter() {
+
+			@Override
+			public String getDescription() {
+				return "*.txt";
+			}
+
+			@Override
+			public boolean accept(File f) {
+				return f.isFile() && f.getName().toLowerCase().endsWith(".txt");
+			}
+		});
+		chooseFile.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int r = chooser.showOpenDialog(chooseFile);
+				if (r == JFileChooser.APPROVE_OPTION) {
+					try {
+						Desktop.getDesktop().open(chooser.getSelectedFile());
+					} catch (IOException e1) {
+						JOptionPane.showMessageDialog(chooseFile,
+								"Could not open file " + chooser.getSelectedFile().getAbsolutePath());
+					}
+
+				}
+			}
+		});
+		convert.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+
+				Battelship.useUI();
+				/**
+				 * if (arg0.getSource() == convert) { if (TextFrame == null) frame2 = new
+				 * ViewCourseGUI(); if (!frame2.isVisible()) frame2.setVisible(true); } /**
+				 * textArea.setEditable(false); textArea.setLineWrap(true);
+				 * textArea.setWrapStyleWord(true); textArea.setVisible(true); Scanner scan; try
+				 * { scan = new Scanner(new File("D:\\Employee.txt")); StringBuilder sb = new
+				 * StringBuilder(); while (scan.hasNextLine()) { String line = scan.nextLine();
+				 * textArea.append(line); }
+				 * 
+				 * } catch (FileNotFoundException e2) { // TODO Auto-generated catch block
+				 * e2.printStackTrace(); }
+				 **/
+
+			}
+		});
+		finale.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg1) {
+
+				SearchResult.createUI();
+				// SearchResult.showTableData();
+
+			}
+		});
+		optimized.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg2) {
+				JtreeStructure.JtreeStructur();
+
+			}
+		});
+		original.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg3) {
+				JTREEStruct.Jtree();
+
+			}
+		});
+		myButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg4) {
+				PopupFactory factory = PopupFactory.getSharedInstance();
+				popup = factory.getPopup(null, myPanel, 0, 0);
+
+				popup.show();
+
+			}
+		});
+		anotherButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg5) {
+				// System.out.println("another Button pressed");
+				String text = textArea.getText();
+				// System.out.println(text);
+				popup.hide();
+				TestOpenFile.createUID();
+
+			}
+		});
+		button.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg4) {
+				PopupFactory factory1 = PopupFactory.getSharedInstance();
+				popup1 = factory1.getPopup(null, myPanel1, 0, 0);
+
+				popup1.show();
+
+			}
+		});
+		anotherButton1.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg5) {
+				// System.out.println("another Button pressed");
+				String text1 = textArea1.getText();
+				// System.out.println(text);
+				popup1.hide();
+				TestOpenFile.createUID1();
+
+			}
+		});
+		p1.add(label1);
+		p2.add(chooseFile);
+		p2.add(convert);
+		p2.add(finale);
+
+		p1.setBounds(200, 150, 200, 50);
+		p3.add(label);
+		p2.setBounds(210, 150, 210, 60);
+		p3.setBounds(120, 150, 150, 20);
+		p4.add(myButton);
+		p6.add(button);
+		p5.add(label2);
+		p4.add(original);
+		p6.add(optimized);
+
+		textArea.setEditable(false);
+		textArea.setLineWrap(true);
+		textArea.setWrapStyleWord(true);
+		textArea.setVisible(true);
+		frame.add(p1);
+		frame.add(p2);
+		frame.add(p3);
+		frame.add(p4);
+		frame.add(p5);
+		frame.add(p6);
+
+		frame.pack();
+		frame.setLocationRelativeTo(null);
+		frame.setLayout(new GridLayout(3, 1));
+		frame.setSize(400, 400);
+		frame.setVisible(true);
+
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+	}
+
+	static void createUID1() {
+		JFrame frame;
+		frame = new JFrame("Database Search Result");
+
+		// frame.setLayout(null);
+
+		JLabel label;
+		JPanel p1 = new JPanel();
+		Panel p2 = new Panel();
+
+		// JTable table;
+		String driverName = "com.mysql.jdbc.Driver";
+		String url = "jdbc:mysql://localhost:3306/emp";
+		String userName = "root";
+		String password = "Jamesbond12@";
+		// String[] columnNames = {"LAST_NAME","DNUM","P_NO"};
+		JTextField textbox = new JTextField();
+		// textbox.setLocation(120,100);
+		textbox.setBounds(30, 40, 50, 30);
+		label = new JLabel("Execution Time Of Optimized Query Is:");
+		label.setBounds(10, 200, 200, 10);
+
+		ArrayList columnNames = new ArrayList();
+		ArrayList data = new ArrayList();
+
+		// Connect to an MySQL Database, run query, get result set
+		url = "jdbc:mysql://localhost:3306/emp";
+		userName = "root";
+		password = "Jamesbond12@";
+		long start = System.currentTimeMillis();
+		// System.out.println(new Date( ) + "\n");
+		String sql = "select p_no,dnum,last_name from (select p_no,dnum from project where p_loc='new york') as p,(select mgremp_id,dept_no from department)as d,(select last_name,emp_id from employee) as e where p.dnum=d.dept_no and d.mgremp_id=e.emp_id ";
+
+		// Java SE 7 has try-with-resources
+		// This will ensure that the sql objects are closed when the program
+		// is finished with them
+		try (Connection connection = DriverManager.getConnection(url, userName, password);
+				Statement stmt = connection.createStatement();
+				ResultSet rs = stmt.executeQuery(sql)) {
+			ResultSetMetaData md = rs.getMetaData();
+			int columns = md.getColumnCount();
+
+			// Get column names
+			for (int i = 1; i <= columns; i++) {
+				columnNames.add(md.getColumnName(i));
+			}
+
+			// Get row data
+			while (rs.next()) {
+				ArrayList row = new ArrayList(columns);
+
+				for (int i = 1; i <= columns; i++) {
+					row.add(rs.getObject(i));
+				}
+
+				data.add(row);
+			}
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+
+		// Create Vectors and copy over elements from ArrayLists to them
+		// Vector is deprecated but I am using them in this example to keep
+		// things simple - the best practice would be to create a custom defined
+		// class which inherits from the AbstractTableModel class
+		Vector columnNamesVector = new Vector();
+		Vector dataVector = new Vector();
+
+		for (int i = 0; i < data.size(); i++) {
+			ArrayList subArray = (ArrayList) data.get(i);
+			Vector subVector = new Vector();
+			for (int j = 0; j < subArray.size(); j++) {
+				subVector.add(subArray.get(j));
+			}
+			dataVector.add(subVector);
+		}
+
+		for (int i = 0; i < columnNames.size(); i++)
+			columnNamesVector.add(columnNames.get(i));
+
+		// Create table with database data
+		JTable table = new JTable(dataVector, columnNamesVector) {
+			public Class getColumnClass(int column) {
+				for (int row = 0; row < getRowCount(); row++) {
+					Object o = getValueAt(row, column);
+
+					if (o != null) {
+						return o.getClass();
+					}
+				}
+
+				return Object.class;
+			}
+
+		};
+
+		JScrollPane scrollPane = new JScrollPane(table);
+		scrollPane.setSize(1000, 200);
+		long end = System.currentTimeMillis();
+		long diff = end - start;
+		String myString = Long.toString(diff);
+		// System.out.println("new Date"+myString);
+		textbox.setText(String.valueOf(myString));
+
+		// textbox.setEditable(false);
+
+		// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		frame = new JFrame("TableFromSqlDatabase");
+		// frame.setSize(500, 800);
+
+		frame.add(scrollPane);
+		frame.add(label);
+		frame.add(textbox);
+		frame.setSize(100, 100);
+
+		frame.setLayout(new GridLayout(3, 0));
+		frame.pack();
+		frame.setVisible(true);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// frame.setDefaultCloseOperation( EXIT_ON_CLOSE );
+
+	}
+
+	static void createUID() {
+		JFrame frame;
+		frame = new JFrame("Database Search Result");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLayout(null);
+
+		JLabel label;
+		JPanel p1 = new JPanel();
+		Panel p2 = new Panel();
+
+		// JTable table;
+		String driverName = "com.mysql.jdbc.Driver";
+		String url = "jdbc:mysql://localhost:3306/emp";
+		String userName = "root";
+		String password = "Jamesbond12@";
+		// String[] columnNames = {"LAST_NAME","DNUM","P_NO"};
+		JTextField textbox = new JTextField();
+		textbox.setLocation(120, 100);
+		textbox.setBounds(30, 400, 500, 30);
+		label = new JLabel("Execution Time Of Original Query Is:");
+		label.setBounds(70, 400, 400, 30);
+
+		ArrayList columnNames = new ArrayList();
+		ArrayList data = new ArrayList();
+
+		// Connect to an MySQL Database, run query, get result set
+		url = "jdbc:mysql://localhost:3306/emp";
+		userName = "root";
+		password = "Jamesbond12@";
+		long start = System.currentTimeMillis();
+		// System.out.println(new Date( ) + "\n");
+		String sql = "select p.p_no,p.dnum,e.last_name from project as p,department as d,employee as e where p.dnum=d.dept_no and d.mgremp_id=e.emp_id and p.p_loc='new york'";
+
+		// Java SE 7 has try-with-resources
+		// This will ensure that the sql objects are closed when the program
+		// is finished with them
+		try (Connection connection = DriverManager.getConnection(url, userName, password);
+				Statement stmt = connection.createStatement();
+				ResultSet rs = stmt.executeQuery(sql)) {
+			ResultSetMetaData md = rs.getMetaData();
+			int columns = md.getColumnCount();
+
+			// Get column names
+			for (int i = 1; i <= columns; i++) {
+				columnNames.add(md.getColumnName(i));
+			}
+
+			// Get row data
+			while (rs.next()) {
+				ArrayList row = new ArrayList(columns);
+
+				for (int i = 1; i <= columns; i++) {
+					row.add(rs.getObject(i));
+				}
+
+				data.add(row);
+			}
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+
+		// Create Vectors and copy over elements from ArrayLists to them
+		// Vector is deprecated but I am using them in this example to keep
+		// things simple - the best practice would be to create a custom defined
+		// class which inherits from the AbstractTableModel class
+		Vector columnNamesVector = new Vector();
+		Vector dataVector = new Vector();
+
+		for (int i = 0; i < data.size(); i++) {
+			ArrayList subArray = (ArrayList) data.get(i);
+			Vector subVector = new Vector();
+			for (int j = 0; j < subArray.size(); j++) {
+				subVector.add(subArray.get(j));
+			}
+			dataVector.add(subVector);
+		}
+
+		for (int i = 0; i < columnNames.size(); i++)
+			columnNamesVector.add(columnNames.get(i));
+
+		// Create table with database data
+		JTable table = new JTable(dataVector, columnNamesVector) {
+			public Class getColumnClass(int column) {
+				for (int row = 0; row < getRowCount(); row++) {
+					Object o = getValueAt(row, column);
+
+					if (o != null) {
+						return o.getClass();
+					}
+				}
+
+				return Object.class;
+			}
+
+		};
+
+		JScrollPane scrollPane = new JScrollPane(table);
+		scrollPane.setSize(1000, 200);
+		long end = System.currentTimeMillis();
+		long diff = end - start;
+		String myString = Long.toString(diff);
+		// System.out.println("new Date"+myString);
+		textbox.setText(String.valueOf(myString));
+
+		// textbox.setEditable(false);
+
+		frame = new JFrame("TableFromSqlDatabase");
+		frame.add(scrollPane);
+		frame.add(label);
+		frame.add(textbox);
+		frame.setSize(100, 100);
+
+		frame.setLayout(new GridLayout(3, 0));
+		frame.pack();
+		frame.setVisible(true);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+
+}
+
+class JtreeStructure extends JFrame {
+
+	static final long serialVersionUID = 1L;
+
+	static public void JtreeStructur() {
+
+		// JtreeStructure() throws Exception {
+
+		// super(" OPTIMIZED QUERY TREE");
+
+		Connection conn = null;
+
+		Statement st = null;
+
+		ResultSet rs = null;
+		// JFrame frame;
+		// static Container content = getContentPane();
+		ArrayList<Object> list = new ArrayList<Object>();
+		list.add(" P_LOC='NEW YORK");
+
+		try {
+			System.out.println("Connecting to a selected database...");
+			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/emp", "root", "Jamesbond12");
+			System.out.println("Connected database successfully...");
+
+			String sql = "select p_no,dnum from project where p_loc='new york'";
+
+			st = conn.createStatement();
+			rs = st.executeQuery(sql);
+
+			while (rs.next()) {
+
+				Object value[] = { rs.getString(1), rs.getString(2) };
+				list.add(value);
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		// rs.close();
+		// st.close();
+		// conn.close();
+
+		Object hierarchy[] = list.toArray();
+		// final JFrame frame;
+
+		JFrame frame = new JFrame();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// Container content = getContentPane();
+
+		DefaultMutableTreeNode root = processHierarchy(hierarchy);
+		JTree tree = new JTree(root);
+		frame.add(new JScrollPane(tree), BorderLayout.LINE_START);
+		frame.setSize(500, 800);
+		frame.setLocationRelativeTo(null);
+		// frame.setLocation(300, 100);
+		frame.setVisible(true);
+
+		ArrayList<Object> list1 = new ArrayList<Object>();
+		list1.add(" department list");
+
+		try {
+
+			String sql2 = "select mgremp_id,dept_no from department";
+
+			st = conn.createStatement();
+			ResultSet rs2 = st.executeQuery(sql2);
+
+			while (rs2.next()) {
+
+				Object value1[] = { rs2.getString(1), rs2.getString(2) };
+				list1.add(value1);
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		// rs2.close();
+		// st.close();
+		// conn.close();
+
+		Object hierarchy1[] = list1.toArray();
+		JFrame frame1 = new JFrame();
+		frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// Container content1 = getContentPane();
+
+		DefaultMutableTreeNode root1 = processHierarchy(hierarchy1);
+		JTree tree1 = new JTree(root1);
+		frame.add(new JScrollPane(tree1), BorderLayout.CENTER);
+		// frame1.setSize(300, 400);
+		// frame1.setLocation(frame.getX() + frame.getWidth(), frame.getY());
+		// frame1.setLocation(300,100);
+		// frame1.setVisible(true);
+
+		ArrayList<Object> list2 = new ArrayList<Object>();
+		list2.add(" EMPLOYEE LIST");
+
+		try {
+			System.out.println("Connecting to a selected database...");
+			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/emp", "root", "Jamesbond12");
+			System.out.println("Connected database successfully...");
+
+			String sql3 = "SELECT last_name,emp_id from employee";
+
+			st = conn.createStatement();
+			ResultSet rs3 = st.executeQuery(sql3);
+
+			while (rs3.next()) {
+
+				Object value2[] = { rs3.getString(1), rs3.getString(2) };
+				list2.add(value2);
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		// rs.close();
+		// st.close();
+		// conn.close();
+
+		Object hierarchy2[] = list2.toArray();
+
+		JFrame frame2 = new JFrame();
+		frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// Container content2 = getContentPane();
+
+		DefaultMutableTreeNode root2 = processHierarchy2(hierarchy2);
+		JTree tree2 = new JTree(root2);
+		frame.add(new JScrollPane(tree2), BorderLayout.LINE_END);
+		// frame2.setSize(400, 600);
+		// frame2.setLocation(frame1.getX() + frame1.getWidth(), frame1.getY());
+		// frame2.setLocation(300, 100);
+		// frame2.setVisible(true);
+
+		ArrayList<Object> list3 = new ArrayList<Object>();
+		list3.add(" RESULT LIST");
+
+		try {
+			System.out.println("Connecting to a selected database...");
+			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/emp", "root", "Jamesbond12");
+			System.out.println("Connected database successfully...");
+
+			String sql4 = "select p_no,dnum,last_name from (select p_no,dnum from project where p_loc='new york') as p,(select mgremp_id,dept_no from department)as d,(select last_name,emp_id from employee) as e where p.dnum=d.dept_no and d.mgremp_id=e.emp_id ";
+
+			st = conn.createStatement();
+			ResultSet rs4 = st.executeQuery(sql4);
+
+			while (rs4.next()) {
+
+				Object value3[] = { rs4.getString(1), rs4.getString(2), rs4.getString(3) };
+				list3.add(value3);
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		// rs.close();
+		// st.close();
+		// conn.close();
+
+		Object hierarchy3[] = list3.toArray();
+
+		JFrame frame3 = new JFrame();
+		frame3.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// Container content3 = getContentPane();
+
+		DefaultMutableTreeNode root3 = processHierarchy3(hierarchy3);
+		JTree tree3 = new JTree(root3);
+		frame.add(new JScrollPane(tree3), BorderLayout.PAGE_END);
+		// frame3.setSize(400, 600);
+		// frame3.setLocation(300, 100);
+		// frame3.setLocation(frame2.getX() + frame2.getWidth(), frame2.getY());
+		// frame3.setVisible(true);
+		// frame.add(frame1,BorderLayout.PAGE_START);
+		// frame.add(frame2,BorderLayout.PAGE_END);
+		// frame.add(frame3,BorderLayout.LINE_START);
+
+	}
+
+	static DefaultMutableTreeNode processHierarchy(Object[] hierarchy) {
+		DefaultMutableTreeNode node = new DefaultMutableTreeNode(hierarchy[0]);
+		DefaultMutableTreeNode child;
+		for (int i = 1; i < hierarchy.length; i++) {
+			Object nodeSpecifier = hierarchy[i];
+			if (nodeSpecifier instanceof Object[]) // Ie node with children
+			{
+				child = processHierarchy((Object[]) nodeSpecifier);
+			} else {
+				child = new DefaultMutableTreeNode(nodeSpecifier); // Ie Leaf
+
+			}
+			node.add(child);
+		}
+		return (node);
+	}
+
+	static DefaultMutableTreeNode processHierarchy1(Object[] hierarchy1) {
+		DefaultMutableTreeNode node1 = new DefaultMutableTreeNode(hierarchy1[0]);
+		DefaultMutableTreeNode child1;
+		for (int i = 1; i < hierarchy1.length; i++) {
+			Object nodeSpecifier1 = hierarchy1[i];
+			if (nodeSpecifier1 instanceof Object[]) // Ie node with children
+			{
+				child1 = processHierarchy1((Object[]) nodeSpecifier1);
+			} else {
+				child1 = new DefaultMutableTreeNode(nodeSpecifier1); // Ie Leaf
+
+			}
+			node1.add(child1);
+		}
+		return (node1);
+	}
+
+	static DefaultMutableTreeNode processHierarchy2(Object[] hierarchy2) {
+		DefaultMutableTreeNode node2 = new DefaultMutableTreeNode(hierarchy2[0]);
+		DefaultMutableTreeNode child2;
+		for (int i = 1; i < hierarchy2.length; i++) {
+			Object nodeSpecifier2 = hierarchy2[i];
+			if (nodeSpecifier2 instanceof Object[]) // Ie node with children
+			{
+				child2 = processHierarchy1((Object[]) nodeSpecifier2);
+			} else {
+				child2 = new DefaultMutableTreeNode(nodeSpecifier2); // Ie Leaf
+
+			}
+			node2.add(child2);
+		}
+		return (node2);
+	}
+
+	static DefaultMutableTreeNode processHierarchy3(Object[] hierarchy3) {
+		DefaultMutableTreeNode node3 = new DefaultMutableTreeNode(hierarchy3[0]);
+		DefaultMutableTreeNode child3;
+		for (int i = 1; i < hierarchy3.length; i++) {
+			Object nodeSpecifier3 = hierarchy3[i];
+			if (nodeSpecifier3 instanceof Object[]) // Ie node with children
+			{
+				child3 = processHierarchy1((Object[]) nodeSpecifier3);
+			} else {
+				child3 = new DefaultMutableTreeNode(nodeSpecifier3); // Ie Leaf
+
+			}
+			node3.add(child3);
+		}
+		return (node3);
+	}
+}
+
+class JTREEStruct extends JFrame {
+
+	private static final long serialVersionUID = 1L;
+
+	static Connection conn = null;
+
+	static Statement st = null;
+
+	static ResultSet rs = null;
+
+	static public void Jtree() {
+
+		// public JTREEStructure() throws Exception {
+
+		// super("ORIGINAL QUERY TREE ");
+
+		ArrayList<Object> list = new ArrayList<Object>();
+		list.add(" PROJECT LIST");
+
+		try {
+			System.out.println("Connecting to a selected database...");
+			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/emp", "root", "jamesbond12");
+			System.out.println("Connected database successfully...");
+
+			String sql = "select * FROM PROJECT";
+
+			st = conn.createStatement();
+			rs = st.executeQuery(sql);
+
+			while (rs.next()) {
+
+				Object value[] = { rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4) };
+				list.add(value);
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		// rs.close();
+		// st.close();
+		// conn.close();
+
+		Object hierarchy[] = list.toArray();
+
+		JFrame frame = new JFrame();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// Container content = getContentPane();
+
+		DefaultMutableTreeNode root = processHierarchy(hierarchy);
+		JTree tree = new JTree(root);
+		frame.add(new JScrollPane(tree), BorderLayout.LINE_START);
+		frame.setSize(500, 800);
+		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);
+
+		ArrayList<Object> list1 = new ArrayList<Object>();
+		list1.add(" department list");
+
+		try {
+
+			String sql2 = "select * from department";
+
+			st = conn.createStatement();
+			ResultSet rs2 = st.executeQuery(sql2);
+
+			while (rs2.next()) {
+
+				Object value1[] = { rs2.getString(1), rs2.getString(2), rs2.getString(3), rs2.getString(4) };
+				list1.add(value1);
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		// rs2.close();
+		// st.close();
+		// conn.close();
+
+		Object hierarchy1[] = list1.toArray();
+		JFrame frame1 = new JFrame();
+		frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// Container content1 = getContentPane();
+
+		DefaultMutableTreeNode root1 = processHierarchy(hierarchy1);
+		JTree tree1 = new JTree(root1);
+		frame.add(new JScrollPane(tree1), BorderLayout.CENTER);
+		// setSize(300, 400);
+		// setLocation(300,100);
+		// setVisible(true);
+
+		ArrayList<Object> list2 = new ArrayList<Object>();
+		list2.add(" EMPLOYEE LIST");
+
+		try {
+			System.out.println("Connecting to a selected database...");
+			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/emp", "root", "jamesbond12");
+			System.out.println("Connected database successfully...");
+
+			String sql3 = "SELECT * from employee";
+
+			st = conn.createStatement();
+			ResultSet rs3 = st.executeQuery(sql3);
+
+			while (rs3.next()) {
+
+				Object value2[] = { rs3.getString(1), rs3.getString(2), rs3.getString(3), rs3.getString(4),
+						rs3.getString(5), rs3.getString(6), rs3.getString(7), rs3.getString(8), rs3.getString(9) };
+				list2.add(value2);
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		// rs.close();
+		// st.close();
+		// conn.close();
+
+		Object hierarchy2[] = list2.toArray();
+
+		JFrame frame2 = new JFrame();
+		frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// Container content2 = getContentPane();
+
+		DefaultMutableTreeNode root2 = processHierarchy2(hierarchy2);
+		JTree tree2 = new JTree(root2);
+		frame.add(new JScrollPane(tree2), BorderLayout.LINE_END);
+		// setSize(400, 600);
+		// setLocation(300, 100);
+		// setVisible(true);
+
+		ArrayList<Object> list3 = new ArrayList<Object>();
+		list3.add(" RESULT LIST");
+
+		try {
+			System.out.println("Connecting to a selected database...");
+			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/emp", "root", "jamesbond12");
+			System.out.println("Connected database successfully...");
+
+			String sql4 = "select p.p_no,p.dnum,e.last_name from project as p,department as d,employee as e where p.dnum=d.dept_no and d.mgremp_id=e.emp_id and p.p_loc='new york'";
+
+			st = conn.createStatement();
+			ResultSet rs4 = st.executeQuery(sql4);
+
+			while (rs4.next()) {
+
+				Object value3[] = { rs4.getString(1), rs4.getString(2), rs4.getString(3) };
+				list3.add(value3);
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		// rs.close();
+		// st.close();
+		// conn.close();
+
+		Object hierarchy3[] = list3.toArray();
+
+		JFrame frame3 = new JFrame();
+		frame3.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// Container content3 = getContentPane();
+
+		DefaultMutableTreeNode root3 = processHierarchy3(hierarchy3);
+		JTree tree3 = new JTree(root3);
+		frame.add(new JScrollPane(tree3), BorderLayout.PAGE_END);
+		// setSize(400, 600);
+		// setLocation(300, 100);
+		// setVisible(true);
+
+	}
+
+	static DefaultMutableTreeNode processHierarchy(Object[] hierarchy) {
+		DefaultMutableTreeNode node = new DefaultMutableTreeNode(hierarchy[0]);
+		DefaultMutableTreeNode child;
+		for (int i = 1; i < hierarchy.length; i++) {
+			Object nodeSpecifier = hierarchy[i];
+			if (nodeSpecifier instanceof Object[]) // Ie node with children
+			{
+				child = processHierarchy((Object[]) nodeSpecifier);
+			} else {
+				child = new DefaultMutableTreeNode(nodeSpecifier); // Ie Leaf
+
+			}
+			node.add(child);
+		}
+		return (node);
+	}
+
+	static DefaultMutableTreeNode processHierarchy1(Object[] hierarchy1) {
+		DefaultMutableTreeNode node1 = new DefaultMutableTreeNode(hierarchy1[0]);
+		DefaultMutableTreeNode child1;
+		for (int i = 1; i < hierarchy1.length; i++) {
+			Object nodeSpecifier1 = hierarchy1[i];
+			if (nodeSpecifier1 instanceof Object[]) // Ie node with children
+			{
+				child1 = processHierarchy1((Object[]) nodeSpecifier1);
+			} else {
+				child1 = new DefaultMutableTreeNode(nodeSpecifier1); // Ie Leaf
+
+			}
+			node1.add(child1);
+		}
+		return (node1);
+	}
+
+	static DefaultMutableTreeNode processHierarchy2(Object[] hierarchy2) {
+		DefaultMutableTreeNode node2 = new DefaultMutableTreeNode(hierarchy2[0]);
+		DefaultMutableTreeNode child2;
+		for (int i = 1; i < hierarchy2.length; i++) {
+			Object nodeSpecifier2 = hierarchy2[i];
+			if (nodeSpecifier2 instanceof Object[]) // Ie node with children
+			{
+				child2 = processHierarchy1((Object[]) nodeSpecifier2);
+			} else {
+				child2 = new DefaultMutableTreeNode(nodeSpecifier2); // Ie Leaf
+
+			}
+			node2.add(child2);
+		}
+		return (node2);
+	}
+
+	static DefaultMutableTreeNode processHierarchy3(Object[] hierarchy3) {
+		DefaultMutableTreeNode node3 = new DefaultMutableTreeNode(hierarchy3[0]);
+		DefaultMutableTreeNode child3;
+		for (int i = 1; i < hierarchy3.length; i++) {
+			Object nodeSpecifier3 = hierarchy3[i];
+			if (nodeSpecifier3 instanceof Object[]) // Ie node with children
+			{
+				child3 = processHierarchy1((Object[]) nodeSpecifier3);
+			} else {
+				child3 = new DefaultMutableTreeNode(nodeSpecifier3); // Ie Leaf
+
+			}
+			node3.add(child3);
+		}
+		return (node3);
+	}
+
+}
+
+class ToXML {
+
+	BufferedReader in;
+	StreamResult out;
+	TransformerHandler th;
+	AttributesImpl atts;
+
+	public void doit() {
+		try {
+			in = new BufferedReader(new FileReader("D:\\employee.txt"));
+			out = new StreamResult("employeee.xml");
+			initXML();
+			String str;
+			while ((str = in.readLine()) != null) {
+				process(str);
+			}
+			in.close();
+			closeXML();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void initXML() throws ParserConfigurationException, TransformerConfigurationException, SAXException {
+		SAXTransformerFactory tf = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+
+		th = tf.newTransformerHandler();
+		Transformer serializer = th.getTransformer();
+		serializer.setOutputProperty(OutputKeys.ENCODING, "ISO-8859-1");
+		serializer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+		serializer.setOutputProperty(OutputKeys.INDENT, "yes");
+		th.setResult(out);
+		th.startDocument();
+		atts = new AttributesImpl();
+		th.startElement("", "", "Employee", atts);
+	}
+
+	public void process(String s) throws SAXException {
+		String[] elements = s.split(" ,");
+		atts.clear();
+		th.startElement("", "", "EMP_ID", atts);
+		th.startElement("", "", "FIRST_NAME", atts);
+		th.startElement("", "", "LAST_NAME", atts);
+		th.startElement("", "", "SALARY", atts);
+		th.startElement("", "", "AGE", atts);
+		th.startElement("", "", "CITY", atts);
+		th.characters(elements[0].toCharArray(), 0, elements[0].length());
+		th.endElement("", "", "EMP_ID");
+		th.endElement("", "", "FIRST_NAME");
+		th.endElement("", "", "LAST_NAME");
+		th.endElement("", "", "SALARY");
+		th.endElement("", "", "AGE");
+		th.endElement("", "", "CITY");
+	}
+
+	public void closeXML() throws SAXException {
+		th.endElement("", "", "Employee");
+		th.endDocument();
+	}
+}
+
+class Battelship {
+	static void useUI() {
+
+		TextFrame textframe = new TextFrame();
+		JTextArea jta = new JTextArea();
+		jta.setEditable(false);
+		jta.setLineWrap(true);
+		jta.setWrapStyleWord(true);
+		textframe.add(jta);
+		textframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		Scanner scan;
+		try {
+			scan = new Scanner(new File("D:\\Employee.xml"));
+			StringBuilder sb = new StringBuilder();
+			while (scan.hasNextLine()) {
+				String line = scan.nextLine();
+				jta.append(line);
+
+			}
+		} catch (FileNotFoundException e) {
+			// Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+}
+
+// }
+@SuppressWarnings("serial")
+class TextFrame extends JFrame {
+
+	public TextFrame() {
+
+		setTitle("xml file");
+		setSize(400, 500);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setVisible(true);
+	}
+
+	public void displayText(String text) {
+		JLabel Text = new JLabel(text);
+		add(Text);
+	}
+}
+
+class InsertXMLData {
+	public void fun() {
+		try {
+
+			Class.forName("com.mysql.jdbc.Driver");
+
+			Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/world", "root", "Jamesbond12");
+			System.out.println("insert data into the employee table");
+			Statement st = con.createStatement();
+			DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+			Document doc = docBuilder.parse(new File("D:/employee.xml"));
+			doc.getDocumentElement().normalize();
+			System.out.println("Root element of the doc is " + doc.getDocumentElement().getNodeName());
+			NodeList listOfPersons = doc.getElementsByTagName("employees");
+			for (int s = 0; s < listOfPersons.getLength(); s++) {
+				Node firstPersonNode = listOfPersons.item(s);
+				if (firstPersonNode.getNodeType() == Node.ELEMENT_NODE) {
+					Element firstPersonElement = (Element) firstPersonNode;
+					NodeList EMP_IDList = firstPersonElement.getElementsByTagName("EMP_ID");
+					Element EMP_IDElement = (Element) EMP_IDList.item(0);
+
+					NodeList textEIList = EMP_IDElement.getChildNodes();
+					String EMP_ID = ((Node) textEIList.item(0)).getNodeValue().trim();
+
+					NodeList FIRST_NAMEList = firstPersonElement.getElementsByTagName("FIRST_NAME");
+					Element FIRST_NAMEElement = (Element) FIRST_NAMEList.item(0);
+
+					NodeList textFNList = FIRST_NAMEElement.getChildNodes();
+					String FIRST_NAME = ((Node) textFNList.item(0)).getNodeValue().trim();
+
+					NodeList LAST_NAMEList = firstPersonElement.getElementsByTagName("LAST_NAME");
+					Element LAST_NAMEElement = (Element) LAST_NAMEList.item(0);
+
+					NodeList textLNList = LAST_NAMEElement.getChildNodes();
+					String LAST_NAME = ((Node) textLNList.item(0)).getNodeValue().trim();
+
+					/**
+					 * NodeList PH_NOList = firstPersonElement.getElementsByTagName("PH_NO");
+					 * Element PH_NOElement =(Element)PH_NOList.item(0);*
+					 * 
+					 * NodeList textPNList = PH_NOElement.getChildNodes(); String PH_NO=
+					 * ((Node)textPNList.item(0)).getNodeValue().trim();
+					 **/
+
+					NodeList AGEList = firstPersonElement.getElementsByTagName("AGE");
+					Element AGEElement = (Element) AGEList.item(0);
+
+					NodeList textAGList = AGEElement.getChildNodes();
+					String AGE = ((Node) textAGList.item(0)).getNodeValue().trim();
+
+					NodeList SALARYList = firstPersonElement.getElementsByTagName("SALARY");
+					SALARYList.item(0);
+
+					NodeList textSAList = AGEElement.getChildNodes();
+					String SALARY = ((Node) textSAList.item(0)).getNodeValue().trim();
+
+					NodeList CITYList = firstPersonElement.getElementsByTagName("CITY");
+					CITYList.item(0);
+
+					NodeList textCIList = AGEElement.getChildNodes();
+					String CITY = ((Node) textCIList.item(0)).getNodeValue().trim();
+
+					st.executeUpdate("insert into emp(EMP_ID,FIRST_NAME,LAST_NAME,AGE,SALARY,CITY) values('" + EMP_ID
+							+ "','" + FIRST_NAME + "','" + LAST_NAME + "','" + AGE + "','" + SALARY + "','" + CITY
+							+ "')");
+				}
+			}
+			System.out.println("Data is successfully inserted!");
+		} catch (Exception err) {
+			System.out.println(" " + err.getMessage());
+		}
+	}
+}
+
+public class SearchResult implements ActionListener {
+	static JFrame frame;
+	static JFrame frame1;
+	static JTextField textbox;
+	static JLabel label;
+	static JButton button;
+	static JButton button1;
+	JPanel panel;
+	static JTable table;
+
+	static String driverName = "com.mysql.jdbc.Driver";
+	static String url = "jdbc:mysql://localhost:3306/emp";
+	static String userName = "root";
+	static String password = "Jamesbond12@";
+	static String[] columnNames = { "EMP_ID", "FIRST_NAME", "LAST_NAME", "PH_NO", "SALARY", "AGE", "CITY", "DEPT_NO",
+			"P_NO" };
+
+	static void createUI() {
+		frame = new JFrame("Database Search Result");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLayout(null);
+		textbox = new JTextField();
+		textbox.setBounds(140, 30, 160, 30);
+		label = new JLabel("Enter your EMP_ID");
+		label.setBounds(20, 30, 100, 30);
+		button = new JButton("search");
+		button1 = new JButton("show all records");
+		button.setBounds(120, 130, 150, 20);
+		button1.setBounds(120, 150, 150, 20);
+
+		// button.addActionListener(this);
+
+		frame.add(textbox);
+		frame.add(label);
+		frame.add(button);
+		frame.add(button1);
+
+		frame.setVisible(true);
+		frame.setSize(500, 400);
+
+		button.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				showTableData();
+				// Execute when button is pressed
+
+				// System.out.println("You clicked the button");
+			}
+		});
+		button1.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				TableFromMySqlDatabase();
+				// Execute when button is pressed
+
+				// System.out.println("You clicked the button");
+			}
+		});
+	}
+
+	public void actionPerformed(ActionEvent ae) {
+		button = (JButton) ae.getSource();
+		System.out.println("Showing Table Data.......");
+		showTableData();
+	}
+
+	@SuppressWarnings("rawtypes")
+	static void showTableData() {
+		ArrayList data = new ArrayList();
+		frame1 = new JFrame("Database Search Result");
+		frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame1.setLayout(new BorderLayout());
+		// TableModel tm = new TableModel();
+		DefaultTableModel model = new DefaultTableModel();
+		model.setColumnIdentifiers(columnNames);
+		// DefaultTableModel model = new DefaultTableModel(tm.getData1(),
+		// tm.getColumnNames());
+		// table = new JTable(model);
+		table = new JTable();
+		table.setModel(model);
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		table.setFillsViewportHeight(true);
+		JScrollPane scroll = new JScrollPane(table);
+		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		String textvalue = textbox.getText();
+		String EMP_ID = "";
+		String FIRST_NAME = "";
+		String LAST_NAME = "";
+		String PH_NO = "";
+		String SALARY = "";
+		String AGE = "";
+		String CITY = "";
+		String DEPT_NO = "";
+		String P_NO = "";
+		try {
+			Class.forName(driverName);
+			Connection con = DriverManager.getConnection(url, userName, password);
+			String sql = "select * from employee where EMP_ID = " + textvalue;
+			// String sql = "select * from EMPLOYEE ";
+			PreparedStatement ps = con.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			int i = 0;
+			if (rs.next()) {
+				EMP_ID = rs.getString("EMP_ID");
+				FIRST_NAME = rs.getString("first_name");
+				LAST_NAME = rs.getString("last_name");
+				PH_NO = rs.getString("PH_NO");
+				SALARY = rs.getString("salary");
+				AGE = rs.getString("age");
+				CITY = rs.getString("city");
+				DEPT_NO = rs.getString("dept_no");
+				P_NO = rs.getString("p_no");
+				model.addRow(new Object[] { EMP_ID, FIRST_NAME, LAST_NAME, PH_NO, SALARY, AGE, CITY, DEPT_NO, P_NO });
+				i++;
+			}
+			if (i < 1) {
+				JOptionPane.showMessageDialog(null, "No Record Found", "Error", JOptionPane.ERROR_MESSAGE);
+			}
+			if (i == 10) {
+				System.out.println(i + " Record Found");
+			} else {
+				System.out.println(i + " Records Found");
+			}
+			/**
+			 * while (rs.next()) { ArrayList row = new ArrayList(columns);
+			 * 
+			 * for (int i = 1; i <= columns; i++) { row.add( rs.getObject(i) ); }
+			 * 
+			 * data.add( row ); }
+			 **/
+
+		} catch (Exception ex) {
+			JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+		}
+		frame1.add(scroll);
+		frame1.setVisible(true);
+		frame1.setSize(400, 300);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	static void TableFromMySqlDatabase() {
+		ArrayList columnNames = new ArrayList();
+		ArrayList data = new ArrayList();
+
+		// Connect to an MySQL Database, run query, get result set
+		String url = "jdbc:mysql://localhost:3306/emp";
+		String userid = "root";
+		String password = "Jamesbond12@";
+		String sql = "SELECT * FROM employee";
+
+		// Java SE 7 has try-with-resources
+		// This will ensure that the sql objects are closed when the program
+		// is finished with them
+		try (Connection connection = DriverManager.getConnection(url, userid, password);
+				Statement stmt = connection.createStatement();
+				ResultSet rs = stmt.executeQuery(sql)) {
+			ResultSetMetaData md = rs.getMetaData();
+			int columns = md.getColumnCount();
+
+			// Get column names
+			for (int i = 1; i <= columns; i++) {
+				columnNames.add(md.getColumnName(i));
+			}
+
+			// Get row data
+			while (rs.next()) {
+				ArrayList row = new ArrayList(columns);
+
+				for (int i = 1; i <= columns; i++) {
+					row.add(rs.getObject(i));
+				}
+
+				data.add(row);
+			}
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+
+		// Create Vectors and copy over elements from ArrayLists to them
+		// Vector is deprecated but I am using them in this example to keep
+		// things simple - the best practice would be to create a custom defined
+		// class which inherits from the AbstractTableModel class
+		Vector columnNamesVector = new Vector();
+		Vector dataVector = new Vector();
+
+		for (int i = 0; i < data.size(); i++) {
+			ArrayList subArray = (ArrayList) data.get(i);
+			Vector subVector = new Vector();
+			for (int j = 0; j < subArray.size(); j++) {
+				subVector.add(subArray.get(j));
+			}
+			dataVector.add(subVector);
+		}
+
+		for (int i = 0; i < columnNames.size(); i++)
+			columnNamesVector.add(columnNames.get(i));
+
+		// Create table with database data
+		JTable table = new JTable(dataVector, columnNamesVector) {
+			public Class getColumnClass(int column) {
+				for (int row = 0; row < getRowCount(); row++) {
+					Object o = getValueAt(row, column);
+
+					if (o != null) {
+						return o.getClass();
+					}
+				}
+
+				return Object.class;
+			}
+
+		};
+
+		JScrollPane scrollPane = new JScrollPane(table);
+		// getContentPane().add( scrollPane );
+
+		// JPanel buttonPanel = new JPanel();
+		// getContentPane().add( buttonPanel, BorderLayout.SOUTH );
+		// frame = new TableFromMySqlDatabase();
+		frame = new JFrame("TableFromSqlDatabase");
+		frame.add(scrollPane);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// frame.setDefaultCloseOperation( EXIT_ON_CLOSE );
+		frame.pack();
+		frame.setVisible(true);
+	}
+
+	public class original {
+
+	}
+
+	public static void main(String args[]) throws IOException, ClassNotFoundException, InstantiationException,
+			IllegalAccessException, UnsupportedLookAndFeelException {
+		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		SwingUtilities.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				// new SearchResult().createUI();
+				// new Battelship().useUI();
+				String name = JOptionPane.showInputDialog("user Name?");
+
+				String answer = JOptionPane.showInputDialog("Welcome   " + name + " . Enter PASSWORD?");
+
+				if (answer.equals("abc") || answer.equals("abc")) {
+					new TestOpenFile().initUI();
+				} else {
+					JOptionPane.showMessageDialog(null, "wrong password", "Error", JOptionPane.ERROR_MESSAGE);
+				}
+
+			}
+
+		});
+	}
+}
